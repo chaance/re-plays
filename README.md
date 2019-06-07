@@ -1,6 +1,6 @@
 # RePlay
 
-Just an idea right now. Sketching out ideas for the markup in `AudioPlayer.js`. Trying to mirror the HTML audio element's API and shadow DOM (a la Chrome) as a general model, with some enhancements (audio support for captions via the track element). This will be written in TypeScript.
+Just an idea right now. Sketching out ideas for the markup in `RePlay.js`. Trying to mirror the HTML audio element's API and shadow DOM (a la Chrome) as a general model, with some enhancements (audio support for captions via the track element). This will be written in TypeScript.
 
 ## General thoughts
 
@@ -18,13 +18,13 @@ Just an idea right now. Sketching out ideas for the markup in `AudioPlayer.js`. 
 
 ## Component API ideas
 
-I like Formik as a model. A user can specify an `AudioPlayer` component alone and let the component handle the rest, OR we can break it down to accept a render prop and/or children to let the user render various sub-components as they see fit.
+I like Formik as a model. A user can specify an `RePlay` component alone and let the component handle the rest, OR we can break it down to accept a render prop and/or children to let the user render various sub-components as they see fit.
 
 ```jsx
-<AudioPlayer src={audioFile} {...props} />
+<RePlay src={audioFile} {...props} />
 
 // OR
-<AudioPlayer src={audioFile}>
+<RePlay src={audioFile}>
   <Scrubber />
   <VolumeControl />
   <PlayControls>
@@ -32,10 +32,10 @@ I like Formik as a model. A user can specify an `AudioPlayer` component alone an
     <PlayButton />
     <ForwardButton />
   </PlayControls>
-</AudioPlayer>
+</RePlay>
 
 // OR
-<AudioPlayer
+<RePlay
   src={audioFile}
   render={({
     play,

@@ -6,7 +6,7 @@ const formatTime = () => {}; // format MS to HH:MM:SS
 
 const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
 
-const AudioPlayer = ({
+const RePlay = ({
   src, // required. string | string[] | { src: string, type?: https://tools.ietf.org/html/rfc4281 }[]
   duration = 100, // number
   captions = [{}], // { src: string,  }[]
@@ -286,4 +286,4 @@ const AudioPlayer = ({
   );
 };
 
-export default AudioPlayer;
+export default RePlay;

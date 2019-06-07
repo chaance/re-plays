@@ -1,0 +1,104 @@
+{
+  "name": "react-audio-player",
+  "description": "WIP",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": "Chance Strickland <hi@chancedigital.io> (https://chancedigital.io)",
+  "keywords": [
+    "audio",
+    "audio-player",
+    "react",
+    "react-dom",
+    "typescript"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "react": "^16.8.0"
+  },
+  "scripts": {
+    "test": "tsdx test --env=jsdom",
+    "test:watch": "yarn test -- --watchAll",
+    "start": "cross-env NODE_ENV=development tsdx watch",
+    "prebuild": "rimraf dist",
+    "build": "cross-env NODE_ENV=production tsdx build",
+    "prepublish": "yarn build",
+    "format": "prettier --write 'src/**/*' 'test/**/*' 'README.md'",
+    "precommit": "lint-staged",
+    "start-site": "cd site && yarn start",
+    "build-site": "cd site && yarn install && yarn build",
+    "build-docs": "doctoc README.md"
+  },
+  "dependencies": {
+    "hoist-non-react-statics": "^3.3.0",
+    "lodash": "^4.17.11",
+    "tslib": "^1.9.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@testing-library/react": "^8.0.1",
+    "@types/hoist-non-react-statics": "^3.3.1",
+    "@types/jest": "^24.0.13",
+    "@types/lodash": "^4.14.134",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.4",
+    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/parser": "^1.9.0",
+    "babel-eslint": "10.0.1",
+    "cp-cli": "^2.0.0",
+    "cross-env": "5.2.0",
+    "doctoc": "^1.4.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-jsx-a11y": "6.2.1",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "7.13.0",
+    "eslint-plugin-react-hooks": "^1.6.0",
+    "husky": "2.4.0",
+    "jest": "24.8.0",
+    "lint-staged": "8.2.0",
+    "prettier": "^1.18.0",
+    "react": "^16.9.0-alpha.0",
+    "react-dom": "^16.9.0-alpha.0",
+    "rimraf": "^2.6.3",
+    "tsdx": "^0.6.1",
+    "typescript": "^3.5.1"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}"
+    ],
+    "setupFilesAfterEnv": [
+      "@testing-library/react/cleanup-after-each.js",
+      "<rootDir>/test/setupTests.ts"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all",
+      "not ie <= 11"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

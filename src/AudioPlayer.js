@@ -1,9 +1,9 @@
-import React from "react";
-import cx from "classnames";
+import React from 'react';
+import cx from 'classnames';
 
 const SOME_STATE_LIKE_THING = {}; // may need a reducer, may not? GUESS WE WILL SEE
 const formatTime = () => {}; // format MS to HH:MM:SS
-const LANGUAGE_CODE = "https://r12a.github.io/app-subtags/"; // << GET LIST FOR THIS TYPE
+const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
 
 const AudioPlayer = ({
   src, // required. string | string[] | { src: string, type?: https://tools.ietf.org/html/rfc4281 }[]
@@ -13,7 +13,7 @@ const AudioPlayer = ({
   autoPlay = false,
   loop = false,
   muted = false,
-  preLoad = "metadata"
+  preLoad = 'metadata',
 }) => {
   const {
     isPlaying = false,
@@ -33,8 +33,8 @@ const AudioPlayer = ({
     <div
       pseudo="-webkit-media-controls"
       className={cx(
-        "phase-ready",
-        `state-${isScrubbing ? "scrubbing" : isPlaying ? "playing" : "stopped"}`
+        'phase-ready',
+        `state-${isScrubbing ? 'scrubbing' : isPlaying ? 'playing' : 'stopped'}`
       )}
     >
       {/* some props should stay false and remain controlled by the state */}
@@ -50,14 +50,14 @@ const AudioPlayer = ({
         loop={false}
         muted={false}
         preLoad={preLoad}
-        src={typeof src === "string" && src}
+        src={typeof src === 'string' && src}
       >
         {Array.isArray(src) &&
           src.map((source, i) => (
             <source
               key={i}
-              src={typeof source === "string" ? source : source.src}
-              type={typeof source !== "string" && source.type}
+              src={typeof source === 'string' ? source : source.src}
+              type={typeof source !== 'string' && source.type}
             />
           ))}
       </audio>
@@ -70,7 +70,7 @@ const AudioPlayer = ({
               controls={false}
               width="MAKE_DYNAMIC_INT"
               height="MAKE_DYNAMIC_INT"
-              src={typeof src === "string" && src}
+              src={typeof src === 'string' && src}
               muted={true} // sync with audio state
               preLoad="none" // should be handled by audio preLoad? Will need to test this.
               loop={false} // sync with audio state
@@ -80,8 +80,8 @@ const AudioPlayer = ({
                 src.map((source, i) => (
                   <source
                     key={i}
-                    src={typeof source === "string" ? source : source.src}
-                    type={typeof source !== "string" && source.type}
+                    src={typeof source === 'string' ? source : source.src}
+                    type={typeof source !== 'string' && source.type}
                   />
                 ))}
               <track
@@ -102,7 +102,7 @@ const AudioPlayer = ({
             pseudo="-webkit-media-controls-play-button"
             className={cx({ pause: !isPlaying })}
           >
-            <span className="HIDE_ME">{isPlaying ? "pause" : "play"}</span>
+            <span className="HIDE_ME">{isPlaying ? 'pause' : 'play'}</span>
             <div pseudo="-internal-media-controls-button-hover-background" />
           </button>
 
@@ -153,72 +153,71 @@ const AudioPlayer = ({
             />
             <button type="button" pseudo="-webkit-media-controls-mute-button">
               <span className="HIDE_ME">
-                {volumeLevel === 0 ? "unmute" : "mute"}
+                {volumeLevel === 0 ? 'unmute' : 'mute'}
               </span>
             </button>
           </div>
-          <input
+          <button
             type="button"
             pseudo="-webkit-media-controls-fullscreen-button"
-            aria-label="enter full screen"
-            style="display: none;"
-          />
-          <input
+            style={{ display: 'none' }}
+          >
+            <span>Enter Full-screen</span>
+          </button>
+          <button
             type="button"
-            aria-label="show more media controls"
             title="more options"
             pseudo="-internal-media-controls-overflow-button"
-          />
+          >
+            <span className="HIDE_ME">Show More Media Controls</span>
+          </button>
         </div>
       </div>
       <div
         role="menu"
         aria-label="Options"
         pseudo="-internal-media-controls-text-track-list"
-        style="display: none;"
+        style={{ display: 'none' }}
       />
       <div
         pseudo="-internal-media-controls-overflow-menu-list"
         role="menu"
         className="closed"
-        style="display: none;"
+        style={{ display: 'none' }}
       >
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex="0"
           aria-label="Play"
-          style="display: none;"
+          style={{ display: 'none' }}
         >
-          <input
+          <button
             type="button"
             pseudo="-webkit-media-controls-play-button"
             tabIndex="-1"
-            aria-label="play"
             className="pause"
-            style="display: none;"
-          />
-          <div aria-hidden="true">
+            style={{ display: 'none' }}
+          >
             <span>Play</span>
-          </div>
+          </button>
         </label>
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex="0"
           aria-label="enter full screen Fullscreen "
-          style="display: none;"
+          style={{ display: 'none' }}
         >
-          <input
+          <button
             type="button"
             pseudo="-webkit-media-controls-fullscreen-button"
             aria-label="enter full screen"
             tabIndex="-1"
-            style="display: none;"
-          />
-          <div aria-hidden="true">
+            style={{ display: 'none' }}
+          >
             <span>Fullscreen</span>
-          </div>
+          </button>
         </label>
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
@@ -227,15 +226,15 @@ const AudioPlayer = ({
           aria-label="download media Download "
           className="animated-0"
         >
-          <input
+          <button
             type="button"
-            aria-label="download media"
             pseudo="-internal-media-controls-download-button"
             tabIndex="-1"
-          />
-          <div aria-hidden="true">
-            <span>Download</span>
-          </div>
+          >
+            <span>
+              Download<span className="HIDE_ME"> Media</span>
+            </span>
+          </button>
         </label>
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
@@ -243,15 +242,15 @@ const AudioPlayer = ({
           tabIndex="0"
           aria-label=" Mute "
           className="animated-2"
-          style="display: none;"
+          style={{ display: 'none' }}
         >
           <button
             type="button"
             pseudo="-webkit-media-controls-mute-button"
             tabIndex="-1"
-            style="display: none;"
+            style={{ display: 'none' }}
           >
-            <span>{volumeLevel === 0 ? "Unmute" : "Mute"}</span>
+            <span>{volumeLevel === 0 ? 'Unmute' : 'Mute'}</span>
           </button>
         </label>
         <label
@@ -260,7 +259,7 @@ const AudioPlayer = ({
           tabIndex="0"
           aria-label="play on remote device Cast "
           className="animated-1"
-          style="display: none;"
+          style={{ display: 'none' }}
         />
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
@@ -268,7 +267,7 @@ const AudioPlayer = ({
           tabIndex="0"
           aria-label="show closed captions menu Captions "
           className="animated-0"
-          style="display: none;"
+          style={{ display: 'none' }}
         >
           <button
             aria-label="show closed captions menu"
@@ -276,7 +275,7 @@ const AudioPlayer = ({
             pseudo="-webkit-media-controls-toggle-closed-captions-button"
             className="closed-captions"
             tabIndex="-1"
-            style="display: none;"
+            style={{ display: 'none' }}
           >
             <span>Captions</span>
           </button>

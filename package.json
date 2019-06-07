@@ -34,11 +34,6 @@
     "build-site": "cd site && yarn install && yarn build",
     "build-docs": "doctoc README.md"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && pretty-quick --staged"
-    }
-  },
   "dependencies": {
     "hoist-non-react-statics": "^3.3.0",
     "lodash": "^4.17.11",
@@ -77,9 +72,14 @@
     "tslib": "^1.9.3",
     "typescript": "^3.5.1"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
     "**/*.{ts,tsx}": [
-      "prettier --write",
+      "pretty-quick",
       "git add"
     ]
   },

@@ -1,8 +1,9 @@
-# React Audio Player
+# RePlay
 
 Just an idea right now. Sketching out ideas for the markup in `AudioPlayer.js`. Trying to mirror the HTML audio element's API and shadow DOM (a la Chrome) as a general model, with some enhancements (audio support for captions via the track element). This will be written in TypeScript.
 
 ## General thoughts
+
 - Props should be close to 1-to-1 with HTML5 audio. Some exceptions:
   - Add a `duration` prop. We don't want to force users to fetch data about an audio file. Users should be able to make that decision.
   - No controls prop. If the user doesn't want controls, they can just use an HTML audio tag.
@@ -16,9 +17,10 @@ Just an idea right now. Sketching out ideas for the markup in `AudioPlayer.js`. 
       - `{ src: string, label: string, srcLang: LANGUAGE_CODE, default?: boolean (only one track can be default) }[]`
 
 ## Component API ideas
+
 I like Formik as a model. A user can specify an `AudioPlayer` component alone and let the component handle the rest, OR we can break it down to accept a render prop and/or children to let the user render various sub-components as they see fit.
 
-```js
+```jsx
 <AudioPlayer src={audioFile} {...props} />
 
 // OR

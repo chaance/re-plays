@@ -1,7 +1,7 @@
 {
-  "name": "react-audio-player",
+  "name": "re-play",
   "description": "WIP",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha.1",
   "license": "MIT",
   "author": "Chance Strickland <hi@chancedigital.io> (https://chancedigital.io)",
   "keywords": [
@@ -12,25 +12,32 @@
     "typescript"
   ],
   "main": "dist/index.js",
+  "umd:main": "dist/ts-lib.umd.production.js",
+  "module": "dist/ts-lib.es.production.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist"
+    "/dist"
   ],
   "peerDependencies": {
     "react": "^16.8.0"
   },
   "scripts": {
+    "start": "cross-env NODE_ENV=development tsdx watch",
+    "build": "cross-env NODE_ENV=production tsdx build",
     "test": "tsdx test --env=jsdom",
     "test:watch": "yarn test -- --watchAll",
-    "start": "cross-env NODE_ENV=development tsdx watch",
     "prebuild": "rimraf dist",
-    "build": "cross-env NODE_ENV=production tsdx build",
     "prepublish": "yarn build",
     "format": "prettier --write 'src/**/*' 'test/**/*' 'README.md'",
     "precommit": "lint-staged",
     "start-site": "cd site && yarn start",
     "build-site": "cd site && yarn install && yarn build",
     "build-docs": "doctoc README.md"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && pretty-quick --staged"
+    }
   },
   "dependencies": {
     "hoist-non-react-statics": "^3.3.0",
@@ -61,11 +68,13 @@
     "husky": "2.4.0",
     "jest": "24.8.0",
     "lint-staged": "8.2.0",
-    "prettier": "^1.18.0",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.0",
     "react": "^16.9.0-alpha.0",
     "react-dom": "^16.9.0-alpha.0",
     "rimraf": "^2.6.3",
     "tsdx": "^0.6.1",
+    "tslib": "^1.9.3",
     "typescript": "^3.5.1"
   },
   "lint-staged": {

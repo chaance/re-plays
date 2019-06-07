@@ -2,8 +2,6 @@
   "include": ["src", "types"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
     "baseUrl": "./",
     "declaration": true,
@@ -21,6 +19,9 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "paths": {
+      "*": ["src/*", "node_modules/*"]
+    },
     "pretty": true,
     "removeComments": true,
     "resolveJsonModule": true,
@@ -28,6 +29,8 @@
     "sourceMap": true,
     "strict": true,
     "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
     "stripInternal": true,
     "target": "es5"
   }

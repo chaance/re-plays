@@ -1,14 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 
-
-
-
-
-
 const SOME_STATE_LIKE_THING = {}; // may need a reducer, may not? GUESS WE WILL SEE
 const formatTime = () => {}; // format MS to HH:MM:SS
-
 
 const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
 

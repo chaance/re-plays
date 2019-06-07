@@ -1,5 +1,5 @@
 {
-  "name": "re-play",
+  "name": "re-plays",
   "description": "WIP",
   "version": "0.1.0-alpha.1",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "test": "tsdx test --env=jsdom",
     "test:watch": "yarn test -- --watchAll",
     "prebuild": "rimraf dist",
-    "prepublish": "yarn build",
+    "prepare": "yarn build",
     "format": "prettier --write 'src/**/*' 'test/**/*' 'README.md'",
     "precommit": "lint-staged",
     "start-site": "cd site && yarn start",

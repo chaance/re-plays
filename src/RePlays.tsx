@@ -2,20 +2,47 @@ import React, { useReducer } from 'react';
 import cx from 'classnames';
 import Audio from './Audio';
 import Video from './Video';
+import { toTime } from './utils';
 
-import { Caption, RePlaysProps } from './types';
+import { MediaSource, RePlaysProps, PrePlaysState } from './types';
 
-const SOME_STATE_LIKE_THING = {}; // may need a reducer, may not? GUESS WE WILL SEE
-const formatTime = () => {}; // format MS to HH:MM:SS
+// const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
 
-const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
+const renderSource = (src: MediaSource) =>
+  Array.isArray(src)
+    ? (src as (string | HTMLSourceElement)[]).map((source, i) => (
+        <source
+          key={i}
+          src={typeof source === 'string' ? source : source.src}
+          type={typeof source === 'string' ? undefined : source.type}
+        />
+      ))
+    : null;
 
-export const initialState = {
+export const initialState: PrePlaysState = {
+  elapsedTime: 0,
   isPlaying: false,
   isScrubbing: false,
   volumeControlIsActive: false,
   volumeLevel: 1,
 };
+
+function reducer(
+  state: PrePlaysState,
+  action: { type: string; time?: number }
+): PrePlaysState {
+  switch (action.type) {
+    case 'SET_PLAYING':
+      return { ...state, isPlaying: true };
+    case 'SET_SCRUBBING':
+      return { ...state, isScrubbing: true };
+    case 'SET_ELAPSED_TIME':
+      return { ...state, elapsedTime: action.time || 0 };
+    default: {
+      return state;
+    }
+  }
+}
 
 export const RePlays: React.FC<RePlaysProps> = ({
   src,
@@ -27,15 +54,10 @@ export const RePlays: React.FC<RePlaysProps> = ({
   muted = false,
   preload = 'metadata',
 }) => {
-  const {
-    isPlaying = false,
-    isScrubbing = false,
-    volumeControlIsActive = false,
-    volumeLevel = 1,
-    ...state
-  } = SOME_STATE_LIKE_THING;
-  const elapsedTime = formatTime(state.elapsedTime);
-  const remainingTime = formatTime(duration - elapsedTime);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { isPlaying, isScrubbing, volumeControlIsActive, volumeLevel } = state;
+  const elapsedTime = toTime(state.elapsedTime);
+  const remainingTime = toTime(duration - state.elapsedTime);
 
   const handleAutoPlay = () => {};
   const handleLoop = () => {};
@@ -43,7 +65,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
 
   return (
     <div
-      pseudo="-webkit-media-controls"
+      // pseudo="-webkit-media-controls"
       className={cx(
         'phase-ready',
         `state-${isScrubbing ? 'scrubbing' : isPlaying ? 'playing' : 'stopped'}`
@@ -62,20 +84,10 @@ export const RePlays: React.FC<RePlaysProps> = ({
         preload={preload}
         src={typeof src === 'string' ? src : undefined}
       >
-        {Array.isArray(src)
-          ? (src as (string | HTMLSourceElement)[]).map((source, i) => (
-              <source
-                key={i}
-                src={typeof source === 'string' ? source : source.src}
-                type={typeof source !== 'string' ? source.type : undefined}
-              />
-            ))
-          : null}
+        {renderSource(src)}
       </Audio>
-      {captions.length &&
-        captions
-          .filter(caption => !!caption.src)
-          .map((caption, i) => (
+      {captions
+        ? captions.map((caption, i) => (
             <Video
               key={i}
               controls={false}
@@ -87,62 +99,68 @@ export const RePlays: React.FC<RePlaysProps> = ({
               loop={false} // sync with audio state
               autoPlay={false} // sync with audio state
             >
-              {Array.isArray(src) &&
-                src.map((source, i) => (
-                  <source
-                    key={i}
-                    src={typeof source === 'string' ? source : source.src}
-                    type={typeof source !== 'string' && source.type}
-                  />
-                ))}
+              {renderSource(src)}
               <track kind="subtitles" {...caption} />
             </Video>
-          ))}
-      <div pseudo="-webkit-media-controls-enclosure">
-        <div pseudo="-webkit-media-controls-panel">
+          ))
+        : null}
+      <div /* pseudo="-webkit-media-controls-enclosure" */>
+        <div /* pseudo="-webkit-media-controls-panel" */>
           <button
             type="button"
-            pseudo="-webkit-media-controls-play-button"
+            // pseudo="-webkit-media-controls-play-button"
             className={cx({ pause: !isPlaying })}
           >
             <span className="HIDE_ME">{isPlaying ? 'pause' : 'play'}</span>
-            <div pseudo="-internal-media-controls-button-hover-background" />
+            <div /* pseudo="-internal-media-controls-button-hover-background" */
+            />
           </button>
-
-          <div
-            aria-label={`elapsed time: ${elapsedTime}`}
-            pseudo="-webkit-media-controls-current-time-display"
-          >
-            <span>{elapsedTime}</span>
-          </div>
-          <div
-            aria-label={`remaining time: / ${remainingTime}`}
-            pseudo="-webkit-media-controls-time-remaining-display"
-          >
-            <span>/ {remainingTime}</span>
-          </div>
+          {elapsedTime ? (
+            <div
+              aria-label={`elapsed time: ${elapsedTime}`}
+              //pseudo="-webkit-media-controls-current-time-display"
+            >
+              <span>{elapsedTime}</span>
+            </div>
+          ) : null}
+          {remainingTime ? (
+            <div
+              aria-label={`remaining time: / ${remainingTime}`}
+              // pseudo="-webkit-media-controls-time-remaining-display"
+            >
+              <span>
+                {elapsedTime ? '/ ' : null}
+                {remainingTime}
+              </span>
+            </div>
+          ) : null}
           <input
             type="range"
             step="any"
-            pseudo="-webkit-media-controls-timeline"
+            //pseudo="-webkit-media-controls-timeline"
             max={duration / 100}
             aria-valuetext="0:00"
             className="HIDE_ME"
           />
           <div className="VISUAL_TRACK" aria-hidden>
-            <div pseudo="-internal-media-controls-segmented-track" id="track">
+            <div
+              // pseudo="-internal-media-controls-segmented-track"
+              id="track"
+            >
               <div id="thumb" />
-              <div pseudo="-internal-track-segment-background">
-                <div pseudo="-internal-track-segment-highlight-before" />
-                <div pseudo="-internal-track-segment-highlight-after" />
+              <div /* pseudo="-internal-track-segment-background" */>
+                >
+                <div /* pseudo="-internal-track-segment-highlight-before" */ />
+                <div /* pseudo="-internal-track-segment-highlight-after" */ />
               </div>
             </div>
           </div>
           <div
-            pseudo="-webkit-media-controls-volume-control-container"
+            // pseudo="-webkit-media-controls-volume-control-container"
             className={cx({ closed: !volumeControlIsActive })}
           >
-            <div pseudo="-webkit-media-controls-volume-control-hover-background" />
+            <div /* pseudo="-webkit-media-controls-volume-control-hover-background" */
+            />
             <input
               type="range"
               step="any"
@@ -150,11 +168,13 @@ export const RePlays: React.FC<RePlaysProps> = ({
               aria-valuemax={100}
               aria-valuemin={0}
               aria-label="volume"
-              pseudo="-webkit-media-controls-volume-slider"
+              // pseudo="-webkit-media-controls-volume-slider"
               aria-valuenow={Math.floor(volumeLevel * 100)}
               className={cx({ closed: !volumeControlIsActive })}
             />
-            <button type="button" pseudo="-webkit-media-controls-mute-button">
+            <button
+              type="button" /* pseudo="-webkit-media-controls-mute-button" */
+            >
               <span className="HIDE_ME">
                 {volumeLevel === 0 ? 'unmute' : 'mute'}
               </span>
@@ -162,7 +182,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           </div>
           <button
             type="button"
-            pseudo="-webkit-media-controls-fullscreen-button"
+            // pseudo="-webkit-media-controls-fullscreen-button"
             style={{ display: 'none' }}
           >
             <span>Enter Full-screen</span>
@@ -170,7 +190,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           <button
             type="button"
             title="more options"
-            pseudo="-internal-media-controls-overflow-button"
+            // pseudo="-internal-media-controls-overflow-button"
           >
             <span className="HIDE_ME">Show More Media Controls</span>
           </button>
@@ -179,17 +199,17 @@ export const RePlays: React.FC<RePlaysProps> = ({
       <div
         role="menu"
         aria-label="Options"
-        pseudo="-internal-media-controls-text-track-list"
+        // pseudo="-internal-media-controls-text-track-list"
         style={{ display: 'none' }}
       />
       <div
-        pseudo="-internal-media-controls-overflow-menu-list"
+        // pseudo="-internal-media-controls-overflow-menu-list"
         role="menu"
         className="closed"
         style={{ display: 'none' }}
       >
         <label
-          pseudo="-internal-media-controls-overflow-menu-list-item"
+          // pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex={0}
           aria-label="Play"
@@ -197,7 +217,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
         >
           <button
             type="button"
-            pseudo="-webkit-media-controls-play-button"
+            // pseudo="-webkit-media-controls-play-button"
             tabIndex={-1}
             className="pause"
             style={{ display: 'none' }}
@@ -206,7 +226,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           </button>
         </label>
         <label
-          pseudo="-internal-media-controls-overflow-menu-list-item"
+          // pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex={0}
           aria-label="enter full screen Fullscreen "
@@ -214,7 +234,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
         >
           <button
             type="button"
-            pseudo="-webkit-media-controls-fullscreen-button"
+            // pseudo="-webkit-media-controls-fullscreen-button"
             aria-label="enter full screen"
             tabIndex={-1}
             style={{ display: 'none' }}
@@ -223,7 +243,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           </button>
         </label>
         <label
-          pseudo="-internal-media-controls-overflow-menu-list-item"
+          // pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex={0}
           aria-label="download media Download "
@@ -231,7 +251,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
         >
           <button
             type="button"
-            pseudo="-internal-media-controls-download-button"
+            // pseudo="-internal-media-controls-download-button"
             tabIndex={-1}
           >
             <span>
@@ -240,7 +260,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           </button>
         </label>
         <label
-          pseudo="-internal-media-controls-overflow-menu-list-item"
+          //pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex={0}
           aria-label=" Mute "
@@ -249,7 +269,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
         >
           <button
             type="button"
-            pseudo="-webkit-media-controls-mute-button"
+            //pseudo="-webkit-media-controls-mute-button"
             tabIndex={-1}
             style={{ display: 'none' }}
           >
@@ -257,7 +277,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           </button>
         </label>
         <label
-          pseudo="-internal-media-controls-overflow-menu-list-item"
+          //pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex={0}
           aria-label="play on remote device Cast "
@@ -265,7 +285,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           style={{ display: 'none' }}
         />
         <label
-          pseudo="-internal-media-controls-overflow-menu-list-item"
+          //pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
           tabIndex={0}
           aria-label="show closed captions menu Captions "
@@ -275,7 +295,7 @@ export const RePlays: React.FC<RePlaysProps> = ({
           <button
             aria-label="show closed captions menu"
             type="button"
-            pseudo="-webkit-media-controls-toggle-closed-captions-button"
+            //pseudo="-webkit-media-controls-toggle-closed-captions-button"
             className="closed-captions"
             tabIndex={-1}
             style={{ display: 'none' }}

@@ -52,3 +52,8 @@ I like Formik as a model. A user can specify an `RePlays` component alone and le
   )}
 />
 ```
+
+## Stretch Goals
+
+- Once the basic audio player is sorted, would love to expand the scope to work with video.
+  - Inspiration: https://github.com/CookPete/react-player

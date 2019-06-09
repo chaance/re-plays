@@ -1,12 +1,14 @@
 import React from 'react';
 import cx from 'classnames';
+import Audio from './Audio';
+import Video from './Video';
 
 const SOME_STATE_LIKE_THING = {}; // may need a reducer, may not? GUESS WE WILL SEE
 const formatTime = () => {}; // format MS to HH:MM:SS
 
 const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
 
-const RePlays = ({
+export const RePlays: React.FC = ({
   src, // required. string | string[] | { src: string, type?: https://tools.ietf.org/html/rfc4281 }[]
   duration = 100, // number
   captions = [{}], // { src: string,  }[]
@@ -14,7 +16,7 @@ const RePlays = ({
   autoPlay = false,
   loop = false,
   muted = false,
-  preLoad = 'metadata',
+  preload = 'metadata',
 }) => {
   const {
     isPlaying = false,
@@ -40,7 +42,7 @@ const RePlays = ({
     >
       {/* some props should stay false and remain controlled by the state */}
       {/* autoPlay, loop, muted */}
-      <audio
+      <Audio
         className="HIDE_ME"
         autoPlay={
           false /* This should be controled by component state, so always keep it false here */
@@ -50,8 +52,8 @@ const RePlays = ({
         }
         loop={false}
         muted={false}
-        preLoad={preLoad}
-        src={typeof src === 'string' && src}
+        preload={preload}
+        src={typeof src === 'string' ? src : undefined}
       >
         {Array.isArray(src) &&
           src.map((source, i) => (
@@ -61,19 +63,19 @@ const RePlays = ({
               type={typeof source !== 'string' && source.type}
             />
           ))}
-      </audio>
+      </Audio>
       {captions.length &&
         captions
           .filter(caption => !!caption.src)
           .map((caption, i) => (
-            <video
+            <Video
               key={i}
               controls={false}
               width="MAKE_DYNAMIC_INT"
               height="MAKE_DYNAMIC_INT"
-              src={typeof src === 'string' && src}
+              src={typeof src === 'string' ? src : undefined}
               muted={true} // sync with audio state
-              preLoad="none" // should be handled by audio preLoad? Will need to test this.
+              preload="none" // should be handled by audio preload? Will need to test this.
               loop={false} // sync with audio state
               autoPlay={false} // sync with audio state
             >
@@ -94,7 +96,7 @@ const RePlays = ({
                 src={caption.src}
                 default={caption.default}
               />
-            </video>
+            </Video>
           ))}
       <div pseudo="-webkit-media-controls-enclosure">
         <div pseudo="-webkit-media-controls-panel">

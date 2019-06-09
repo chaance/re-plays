@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useReducer } from 'react';
 import cx from 'classnames';
 import Audio from './Audio';
 import Video from './Video';
+
+import { Caption, RePlaysProps } from './types';
 
 const SOME_STATE_LIKE_THING = {}; // may need a reducer, may not? GUESS WE WILL SEE
 const formatTime = () => {}; // format MS to HH:MM:SS
 
 const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
 
-export const RePlays: React.FC = ({
-  src, // required. string | string[] | { src: string, type?: https://tools.ietf.org/html/rfc4281 }[]
-  duration = 100, // number
-  captions = [{}], // { src: string,  }[]
+export const initialState = {
+  isPlaying: false,
+  isScrubbing: false,
+  volumeControlIsActive: false,
+  volumeLevel: 1,
+};
+
+export const RePlays: React.FC<RePlaysProps> = ({
+  src,
+  duration = 100,
+  captions,
   crossOrigin,
   autoPlay = false,
   loop = false,
@@ -47,22 +56,21 @@ export const RePlays: React.FC = ({
         autoPlay={
           false /* This should be controled by component state, so always keep it false here */
         }
-        crossOrigin={
-          crossOrigin /* May need to manually determine if the request is successful if this is set? */
-        }
+        crossOrigin={crossOrigin ? crossOrigin : undefined}
         loop={false}
         muted={false}
         preload={preload}
         src={typeof src === 'string' ? src : undefined}
       >
-        {Array.isArray(src) &&
-          src.map((source, i) => (
-            <source
-              key={i}
-              src={typeof source === 'string' ? source : source.src}
-              type={typeof source !== 'string' && source.type}
-            />
-          ))}
+        {Array.isArray(src)
+          ? (src as (string | HTMLSourceElement)[]).map((source, i) => (
+              <source
+                key={i}
+                src={typeof source === 'string' ? source : source.src}
+                type={typeof source !== 'string' ? source.type : undefined}
+              />
+            ))
+          : null}
       </Audio>
       {captions.length &&
         captions
@@ -87,15 +95,7 @@ export const RePlays: React.FC = ({
                     type={typeof source !== 'string' && source.type}
                   />
                 ))}
-              <track
-                label={caption.label}
-                kind="subtitles"
-                srcLang={
-                  caption.srcLang /* two-letter language code: https://r12a.github.io/app-subtags/ */
-                }
-                src={caption.src}
-                default={caption.default}
-              />
+              <track kind="subtitles" {...caption} />
             </Video>
           ))}
       <div pseudo="-webkit-media-controls-enclosure">
@@ -191,14 +191,14 @@ export const RePlays: React.FC = ({
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
-          tabIndex="0"
+          tabIndex={0}
           aria-label="Play"
           style={{ display: 'none' }}
         >
           <button
             type="button"
             pseudo="-webkit-media-controls-play-button"
-            tabIndex="-1"
+            tabIndex={-1}
             className="pause"
             style={{ display: 'none' }}
           >
@@ -208,7 +208,7 @@ export const RePlays: React.FC = ({
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
-          tabIndex="0"
+          tabIndex={0}
           aria-label="enter full screen Fullscreen "
           style={{ display: 'none' }}
         >
@@ -216,7 +216,7 @@ export const RePlays: React.FC = ({
             type="button"
             pseudo="-webkit-media-controls-fullscreen-button"
             aria-label="enter full screen"
-            tabIndex="-1"
+            tabIndex={-1}
             style={{ display: 'none' }}
           >
             <span>Fullscreen</span>
@@ -225,14 +225,14 @@ export const RePlays: React.FC = ({
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
-          tabIndex="0"
+          tabIndex={0}
           aria-label="download media Download "
           className="animated-0"
         >
           <button
             type="button"
             pseudo="-internal-media-controls-download-button"
-            tabIndex="-1"
+            tabIndex={-1}
           >
             <span>
               Download<span className="HIDE_ME"> Media</span>
@@ -242,7 +242,7 @@ export const RePlays: React.FC = ({
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
-          tabIndex="0"
+          tabIndex={0}
           aria-label=" Mute "
           className="animated-2"
           style={{ display: 'none' }}
@@ -250,7 +250,7 @@ export const RePlays: React.FC = ({
           <button
             type="button"
             pseudo="-webkit-media-controls-mute-button"
-            tabIndex="-1"
+            tabIndex={-1}
             style={{ display: 'none' }}
           >
             <span>{volumeLevel === 0 ? 'Unmute' : 'Mute'}</span>
@@ -259,7 +259,7 @@ export const RePlays: React.FC = ({
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
-          tabIndex="0"
+          tabIndex={0}
           aria-label="play on remote device Cast "
           className="animated-1"
           style={{ display: 'none' }}
@@ -267,7 +267,7 @@ export const RePlays: React.FC = ({
         <label
           pseudo="-internal-media-controls-overflow-menu-list-item"
           role="menuitem"
-          tabIndex="0"
+          tabIndex={0}
           aria-label="show closed captions menu Captions "
           className="animated-0"
           style={{ display: 'none' }}
@@ -277,7 +277,7 @@ export const RePlays: React.FC = ({
             type="button"
             pseudo="-webkit-media-controls-toggle-closed-captions-button"
             className="closed-captions"
-            tabIndex="-1"
+            tabIndex={-1}
             style={{ display: 'none' }}
           >
             <span>Captions</span>

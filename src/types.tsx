@@ -2,6 +2,10 @@
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
+export interface ActionTypes {
+  [key: string]: string;
+}
+
 export type Caption = {
   src: string;
   default?: boolean;
@@ -17,9 +21,11 @@ export interface RePlaysProps extends Omit<HTMLAudioElement, 'src'> {
   autoPlay?: HTMLMediaElement['autoplay'];
 }
 
-export interface PrePlaysState {
+export interface RePlaysState {
   isPlaying: boolean;
   isScrubbing: boolean;
   volumeControlIsActive: boolean;
   volumeLevel: number;
+  elapsedTime: number;
+  loop: boolean;
 }

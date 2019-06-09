@@ -1,10 +1,11 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import cx from 'classnames';
 import Audio from './Audio';
 import Video from './Video';
 import { toTime } from './utils';
+import { usePrevious } from './hooks';
 
-import { MediaSource, RePlaysProps, PrePlaysState } from './types';
+import { MediaSource, RePlaysProps, RePlaysState, ActionTypes } from './types';
 
 // const LANGUAGE_CODE = 'https://r12a.github.io/app-subtags/'; // << GET LIST FOR THIS TYPE
 
@@ -19,25 +20,73 @@ const renderSource = (src: MediaSource) =>
       ))
     : null;
 
-export const initialState: PrePlaysState = {
+export const initialState: RePlaysState = {
   elapsedTime: 0,
   isPlaying: false,
   isScrubbing: false,
   volumeControlIsActive: false,
   volumeLevel: 1,
+  loop: false,
+};
+
+export const actionTypes: ActionTypes = {
+  SET_PLAYING: 'SET_PLAYING',
+  SET_PAUSE: 'SET_PAUSE',
+  SET_SCRUBBING: 'SET_SCRUBBING',
+  SET_ELAPSED_TIME: 'SET_ELAPSED_TIME',
+  SET_TO_BEGINNING: 'SET_TO_BEGINNING',
+  PLAY_FROM_BEGINNING: 'PLAY_FROM_BEGINNING',
+  TOGGLE_LOOP: 'TOGGLE_LOOP',
+  TOGGLE_PLAYING: 'TOGGLE_PLAYING',
+  MUTE: 'MUTE',
+  SET_VOLUME: 'SET_VOLUME',
 };
 
 function reducer(
-  state: PrePlaysState,
-  action: { type: string; time?: number }
-): PrePlaysState {
+  state: RePlaysState,
+  action: { type: string; time?: number; volumeLevel?: number }
+): RePlaysState {
   switch (action.type) {
-    case 'SET_PLAYING':
+    case actionTypes.SET_PLAYING:
       return { ...state, isPlaying: true };
-    case 'SET_SCRUBBING':
-      return { ...state, isScrubbing: true };
-    case 'SET_ELAPSED_TIME':
+    case actionTypes.SET_PAUSE:
+      return { ...state, isPlaying: false };
+    case actionTypes.TOGGLE_PLAYING:
+      return { ...state, isPlaying: !state.isPlaying };
+    case actionTypes.SET_SCRUBBING:
+      return {
+        ...state,
+        isScrubbing: true,
+        elapsedTime: action.time || 0,
+      };
+    case actionTypes.STOP_SCRUBBING:
+      return {
+        ...state,
+        isScrubbing: false,
+        elapsedTime: action.time || 0,
+      };
+    case actionTypes.SET_ELAPSED_TIME:
       return { ...state, elapsedTime: action.time || 0 };
+    case actionTypes.TOGGLE_LOOP:
+      return { ...state, loop: !state.loop };
+    case actionTypes.MUTE:
+      return { ...state, volumeLevel: 0 };
+    case actionTypes.SET_VOLUME:
+      return { ...state, volumeLevel: action.volumeLevel || 0 };
+    case actionTypes.SET_TO_BEGINNING:
+      return {
+        ...state,
+        isScrubbing: false,
+        isPlaying: false,
+        elapsedTime: 0,
+      };
+    case actionTypes.PLAY_FROM_BEGINNING:
+      return {
+        ...state,
+        isScrubbing: false,
+        isPlaying: true,
+        elapsedTime: 0,
+      };
     default: {
       return state;
     }
@@ -55,13 +104,79 @@ export const RePlays: React.FC<RePlaysProps> = ({
   preload = 'metadata',
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { isPlaying, isScrubbing, volumeControlIsActive, volumeLevel } = state;
+  const {
+    isPlaying,
+    isScrubbing,
+    volumeControlIsActive,
+    volumeLevel,
+    loop: loopState,
+  } = state;
   const elapsedTime = toTime(state.elapsedTime);
   const remainingTime = toTime(duration - state.elapsedTime);
 
-  const handleAutoPlay = () => {};
-  const handleLoop = () => {};
-  const handleMute = () => {};
+  const previousVolume = usePrevious(volumeLevel);
+
+  // Trigger autoplay + mute
+  useEffect(() => {
+    if (muted) dispatch({ type: actionTypes.MUTE });
+    if (autoPlay) dispatch({ type: actionTypes.SET_PLAYING });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Trigger loop
+  useEffect(() => {
+    if (state.elapsedTime === duration)
+      dispatch({ type: actionTypes.PLAY_FROM_BEGINNING });
+  }, [state.elapsedTime, duration]);
+
+  // Reconcile state with props
+  if (loop !== loopState) {
+    dispatch({ type: actionTypes.TOOGLE_LOOP });
+  }
+
+  const setVolume = (level: number) =>
+    dispatch({ type: actionTypes.SET_VOLUME, volumeLevel: level });
+
+  const handlePlay = () => dispatch({ type: actionTypes.SET_PLAYING });
+
+  const handlePause = () => dispatch({ type: actionTypes.SET_PAUSE });
+
+  const togglePlaying = () => dispatch({ type: actionTypes.TOGGLE_PLAYING });
+
+  const toggleMute = () => {
+    if (volumeLevel === 0) {
+      dispatch({ type: actionTypes.SET_VOLUME, volumeLevel: previousVolume });
+    } else {
+      dispatch({ type: actionTypes.MUTE });
+    }
+  };
+
+  const toggleLoop = () => {
+    dispatch({ type: actionTypes.TOGGLE_LOOP });
+  };
+
+  const handleSeekMouseDown = (e: React.MouseEvent<HTMLInputElement>) => {
+    const { value } = e.target as HTMLInputElement;
+    dispatch({
+      type: actionTypes.SET_SCRUBBING,
+      time: parseFloat(value || '0'),
+    });
+  };
+
+  const handleSeeking = (e: React.MouseEvent<HTMLInputElement>) => {
+    const { value } = e.target as HTMLInputElement;
+    dispatch({
+      type: actionTypes.STOP_SCRUBBING,
+      time: parseFloat(value || '0'),
+    });
+  };
+
+  const handleSeekMouseUp = (e: React.MouseEvent<HTMLInputElement>) => {
+    const { value } = e.target as HTMLInputElement;
+    dispatch({
+      type: actionTypes.STOP_SCRUBBING,
+      time: parseFloat(value || '0'),
+    });
+  };
 
   return (
     <div
